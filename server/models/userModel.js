@@ -12,6 +12,10 @@ const userSchema = new mongoose.Schema({
     unique: true,
     required: [true, "Please choose a username"],
   },
+  photo: {
+    type: String,
+    default: "placeholder",
+  },
   email: {
     type: String,
     lowercase: true,
