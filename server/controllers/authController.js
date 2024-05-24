@@ -2,6 +2,7 @@ const User = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 const catchAsync = require("../util/catchAsync");
 const AppError = require("../util/appError");
+const { promisify } = require("util");
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -58,4 +59,30 @@ exports.login = catchAsync(async (req, res, next) => {
   }
   const message = "Logged in successfully";
   createSendToken(user, 200, req, res, message);
+});
+
+exports.protect = catchAsync(async (req, res, next) => {
+  let token;
+
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer")
+  ) {
+    token = req.headers.authorization.split(" ")[1];
+  }
+
+  if (!token) {
+    return next(new AppError("Access denied, please login to get access", 401));
+  }
+
+  const decodedJWT = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+
+  const currentUser = await User.findOne({ _id: decodedJWT.id });
+
+  if (!currentUser) {
+    return next(new AppError("User no longer exist", 401));
+  }
+
+  req.user = currentUser;
+  next();
 });
