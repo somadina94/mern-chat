@@ -1,0 +1,13 @@
+.header {
+  height: 8rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2rem;
+  border-bottom: 3px solid gray;
+}
+
+.logo {
+  color: #fff;
+  font-size: 3rem;
+}
