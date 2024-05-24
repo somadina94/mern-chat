@@ -1,0 +1,23 @@
+.nav {
+  max-width: 60rem;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+}
+
+.nav a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.6rem;
+  padding: 2.8rem 4rem;
+}
+
+.nav a:hover {
+  background-color: purple;
+}
+
+.active {
+  background-color: purple;
+}
