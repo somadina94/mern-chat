@@ -2,6 +2,7 @@ const http = require("http");
 const mongoose = require("mongoose");
 const socketIO = require("socket.io");
 const app = require("./app");
+const Message = require("./models/messageModel");
 
 const server = http.createServer(app);
 
@@ -14,6 +15,14 @@ const io = socketIO(server, {
 
 io.on("connection", (socket) => {
   console.log("new client connected");
+
+  socket.on("sendMessage", async (senderId, receiverId, content) => {
+    try {
+    } catch (err) {
+      console.log("Error sending message", err);
+    }
+  });
+
   socket.on("disconnect", () => {
     console.log("client disconnected");
   });
@@ -37,3 +46,5 @@ const port = process.env.PORT || 7000;
 server.listen(port, () => {
   console.log(`server listening on port ${port}`);
 });
+
+module.exports.io = io;
