@@ -4,6 +4,7 @@ import { RiLockPasswordLine } from "react-icons/ri";
 import useInput from "../../hooks/useInput";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { useCookies } from "react-cookie";
 
 import classes from "./Form.module.css";
 import { logIn } from "../../api/api";
@@ -18,6 +19,7 @@ const Login = () => {
   const [showAlert, setShowAlert] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const setCookie = useCookies(["jwt"])[1];
   const {
     enteredValue: emailInput,
     enteredValueIsValid: emailInputIsValid,
@@ -54,6 +56,7 @@ const Login = () => {
 
     if (res.status === "success") {
       dispatch(authActions.login({ user: res.data.user }));
+      setCookie("jwt", res.token);
       setAlertMsg(res.message);
       setAlertStatus(true);
       setShowAlert(true);
