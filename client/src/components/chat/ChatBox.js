@@ -11,7 +11,7 @@ const ChatBox = ({ chatId }) => {
   const [messages, setMessages] = useState([]);
   const [chatInput, setChatInput] = useState("");
   const { jwt } = useCookies(["jwt"])[0];
-  const userId = useSelector((state) => state.auth.user._id);
+  const userId = useSelector((state) => state.auth.user?._id);
   const socket = useRef(null);
 
   useEffect(() => {

@@ -39,9 +39,13 @@
   gap: 2rem;
   text-decoration: none;
   color: #fff;
-  background-color: purple;
+  background-color: #495057;
   border-radius: 8px;
   padding: 0.4rem;
+}
+
+.chat:hover {
+  background-color: #da77f2;
 }
 
 .chatInfo {
@@ -56,4 +60,8 @@
 
 .message {
   font-size: 1.2rem;
+}
+
+.active {
+  background-color: purple;
 }

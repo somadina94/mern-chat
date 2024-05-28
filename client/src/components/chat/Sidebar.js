@@ -6,6 +6,7 @@ import { useCookies } from "react-cookie";
 
 import classes from "./Sidebar.module.css";
 import { getChatList } from "../../api/api";
+import avatar from "../../images/chat-pic.webp";
 
 const Sidebar = ({ setIsNewChat, chatList, setChatList }) => {
   const { jwt } = useCookies(["jwt"])[0];
@@ -48,11 +49,7 @@ const Sidebar = ({ setIsNewChat, chatList, setChatList }) => {
                   : classes.chat
               }
             >
-              <img
-                src={chat.receiver.photo}
-                alt="receiver"
-                className={classes.photo}
-              />
+              <img src={avatar} alt="receiver" className={classes.photo} />
               <div className={classes.chatInfo}>
                 <span className={classes["receiver-name"]}>
                   {chat.receiver.name}
