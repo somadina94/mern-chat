@@ -1,4 +1,5 @@
 .newChat {
+  position: relative;
   position: absolute;
   top: 6rem;
   max-width: 60rem;
@@ -44,4 +45,14 @@
 .action {
   display: flex;
   justify-content: space-between;
+}
+
+button.close {
+  position: absolute;
+  font-size: 2rem;
+  font-weight: bold;
+  background-color: gray;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
 }

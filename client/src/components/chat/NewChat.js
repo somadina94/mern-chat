@@ -50,6 +50,9 @@ const NewChat = ({ setChatList, setIsNewChat }) => {
     <div className={classes.newChat}>
       {showSpinner && <Spinner />}
       {showAlert && <AuthAlert message={alertMsg} status={alertStatus} />}
+      <button className={classes.close} onClick={() => setIsNewChat(false)}>
+        X
+      </button>
       <input
         type="text"
         value={idInput}
