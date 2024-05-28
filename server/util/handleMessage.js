@@ -1,5 +1,5 @@
 const Message = require("../models/messageModel");
-const io = require("../server").io;
+const { io } = require("../server");
 
 const handleMessage = async (senderId, receiverId, content) => {
   try {
@@ -9,7 +9,7 @@ const handleMessage = async (senderId, receiverId, content) => {
       content,
     });
     // Populate sender and receiver
-    await message.populate("sender receiver", "username name").execPopulate();
+    await message.populate("sender receiver", "username name");
 
     // Emit the message to sender and receiver
     io.to(senderId).emit("messageReceived", message);

@@ -7,6 +7,7 @@ const router = express.Router();
 router.use(authController.protect);
 
 router.route("/sendMessage").post(messageController.sendMessage);
-router.route("/:receiverId").get(messageController.getMessages);
+router.route("/chat-list").get(messageController.getChatList);
+router.route("/getMessages/:receiverId").get(messageController.getMessages);
 
 module.exports = router;
