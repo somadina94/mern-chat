@@ -2,13 +2,15 @@ import { useState } from "react";
 import { FaCheckDouble } from "react-icons/fa";
 import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 
 import classes from "./NewChat.module.css";
 import { getUser } from "../../api/api";
 import AuthAlert from "../UI/AuthAlert";
 import Spinner from "../UI/Spinner";
+import { chatActions } from "../../store/chatSlice";
 
-const NewChat = ({ setChatList, setIsNewChat }) => {
+const NewChat = ({ setIsNewChat }) => {
   const [showIcon, setShowIcon] = useState(false);
   const [idInput, setIdInput] = useState("");
   const [showSpinner, setShowSpinner] = useState(false);
@@ -17,6 +19,8 @@ const NewChat = ({ setChatList, setIsNewChat }) => {
   const [showAlert, setShowAlert] = useState(false);
   const { jwt } = useCookies(["jwt"])[0];
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const chatList = useSelector((state) => state.chat?.chatList);
 
   const searchHandler = async () => {
     if (idInput.trim() === "") return;
@@ -31,7 +35,13 @@ const NewChat = ({ setChatList, setIsNewChat }) => {
         },
         lastMessage: { _id: Math.random.toString(), content: "" },
       };
-      setChatList((prevstate) => [chatListItem, ...prevstate]);
+      const chat = chatList.find(
+        (chat) => chat.receiver.id === res.data.user._id
+      );
+
+      if (!chat) {
+        dispatch(chatActions.addToChatList(chatListItem));
+      }
       setShowIcon(true);
       navigate(`/messages/${res.data.user._id}`);
       setIsNewChat(false);

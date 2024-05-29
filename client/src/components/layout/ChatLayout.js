@@ -22,9 +22,7 @@ const ChatLayout = () => {
         setChatList={setChatList}
         setIsNewChat={setIsNewChat}
       />
-      <div className={classes.content}>
-        {chatId && <ChatBox chatId={chatId} />}
-      </div>
+      <div className={classes.content}>{chatId && <ChatBox />}</div>
     </div>
   );
 };

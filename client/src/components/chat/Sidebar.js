@@ -3,32 +3,55 @@ import { MdOpenInNew } from "react-icons/md";
 import { LuPanelLeftClose } from "react-icons/lu";
 import { NavLink } from "react-router-dom";
 import { useCookies } from "react-cookie";
+import { useDispatch, useSelector } from "react-redux";
 
 import classes from "./Sidebar.module.css";
 import { getChatList } from "../../api/api";
 import avatar from "../../images/chat-pic.webp";
+import { chatActions } from "../../store/chatSlice";
+import { useSocket } from "../../store/socketContext";
 
-const Sidebar = ({ setIsNewChat, chatList, setChatList }) => {
+const Sidebar = ({ setIsNewChat }) => {
   const { jwt } = useCookies(["jwt"])[0];
+  const chatList = useSelector((state) => state.chat.chatList);
+  const dispatch = useDispatch();
+  const newChatList = Array.from(chatList);
+  const userId = useSelector((state) => state.auth.user?._id);
+  const messages = useSelector((state) => state.chat?.messages);
+  const socket = useSocket();
 
   useEffect(() => {
     const fetchChatList = async () => {
       try {
         const response = await getChatList(jwt);
-        setChatList(response.data.chatList);
+
+        dispatch(chatActions.setChatList(response.data.chatList));
       } catch (error) {
         console.error("Error fetching chat list", error);
       }
     };
 
     fetchChatList();
-  }, [jwt, setChatList]);
+  }, [jwt, dispatch, messages]);
 
-  const sortedChatList = chatList.sort(
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleMessageReceived = (newMessage) => {
+      dispatch(chatActions.addMessage(newMessage));
+    };
+
+    socket.on("messageReceived", handleMessageReceived);
+
+    return () => {
+      socket.off("messageReceived", handleMessageReceived);
+    };
+  }, [socket, dispatch]);
+
+  const sortedChatList = newChatList.sort(
     (a, b) =>
       new Date(b.lastMessage.createdAt) - new Date(a.lastMessage.createdAt)
   );
-
   return (
     <div className={classes.sidebar}>
       <div className={classes.menu}>
@@ -54,7 +77,14 @@ const Sidebar = ({ setIsNewChat, chatList, setChatList }) => {
                 <span className={classes["receiver-name"]}>
                   {chat.receiver.name}
                 </span>
-                <span className={classes.message}>
+                <span
+                  className={
+                    !chat.lastMessage.read &&
+                    chat.lastMessage.receiver === userId
+                      ? `${classes.message} ${classes.unread}`
+                      : `${classes.message} ${classes.read}`
+                  }
+                >
                   {chat.lastMessage.content}
                 </span>
               </div>

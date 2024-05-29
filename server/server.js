@@ -28,7 +28,12 @@ const io = socketIO(server, {
 });
 
 io.on("connection", (socket) => {
-  console.log("new client connected");
+  const userId = socket.handshake.auth.token; // Assuming userId is passed as token
+
+  if (userId) {
+    socket.join(userId);
+    console.log(`User ${userId} joined their own room`);
+  }
 
   socket.on("sendMessage", async ({ senderId, receiverId, content }) => {
     try {
@@ -49,12 +54,26 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("joinRoom", (chatId) => {
-    socket.join(chatId);
-  });
-
   socket.on("leaveRoom", (chatId) => {
     socket.leave(chatId);
+  });
+
+  socket.on("typing", ({ chatId, userId }) => {
+    io.to(chatId).emit("typing", { chatId, userId });
+  });
+
+  socket.on("stopTyping", ({ chatId, userId }) => {
+    io.to(chatId).emit("stopTyping", { chatId, userId });
+  });
+
+  socket.on("messagesRead", async ({ messageIds, chatId, userId }) => {
+    try {
+      await Message.updateMany({ _id: { $in: messageIds } }, { read: true });
+      io.to(chatId).emit("messagesRead", { messageIds });
+      io.to(userId).emit("messagesRead", { messageIds });
+    } catch (err) {
+      console.error("Error marking messages as read", err);
+    }
   });
 
   socket.on("disconnect", () => {

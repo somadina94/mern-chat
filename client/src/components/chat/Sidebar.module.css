@@ -62,6 +62,14 @@
   font-size: 1.2rem;
 }
 
+.read {
+  color: #fff;
+}
+
+.unread {
+  color: black;
+}
+
 .active {
   background-color: purple;
 }

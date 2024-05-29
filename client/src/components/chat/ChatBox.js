@@ -1,53 +1,103 @@
 import { useState, useEffect, useRef } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useCookies } from "react-cookie";
 import { IoSendOutline } from "react-icons/io5";
-import io from "socket.io-client";
+import { TiMessageTyping } from "react-icons/ti";
+import {
+  IoCheckmarkCircleOutline,
+  IoCheckmarkDoneCircleOutline,
+} from "react-icons/io5";
+import { useParams } from "react-router-dom";
 
 import classes from "./ChatBox.module.css";
 import { getMessages } from "../../api/api";
+import { chatActions } from "../../store/chatSlice";
+import { useSocket } from "../../store/socketContext";
 
-const ChatBox = ({ chatId }) => {
-  const [messages, setMessages] = useState([]);
+const ChatBox = () => {
+  const [isTyping, setIsTyping] = useState(false);
   const [chatInput, setChatInput] = useState("");
   const { jwt } = useCookies(["jwt"])[0];
   const userId = useSelector((state) => state.auth.user?._id);
-  const socket = useRef(null);
+  const messages = useSelector((state) => state.chat.messages);
+  const dispatch = useDispatch();
+  const socket = useSocket();
+  const typingTimeout = useRef(null);
+  const chatBoxRef = useRef(null);
+  const { id: chatId } = useParams();
+  const sortedMessages = messages.filter(
+    (msg) => msg.receiver._id === chatId || msg.sender._id === chatId
+  );
 
   useEffect(() => {
-    // Initialize socket connection
-    socket.current = io("http://localhost:7000", {
-      query: { token: jwt },
-    });
+    if (chatBoxRef.current) {
+      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+    }
+  });
 
-    // Join the chat room
-    socket.current.emit("joinRoom", chatId);
-
-    // Fetch messages initially
+  // Fetch initial messages
+  useEffect(() => {
     const fetchMessages = async () => {
       const res = await getMessages(chatId, jwt);
       if (res.status === "success") {
-        setMessages(res.data.messages);
+        dispatch(chatActions.setMessages(res.data.messages));
       } else {
         console.log("Error", res.message);
       }
     };
     fetchMessages();
+  }, [chatId, dispatch, jwt]);
 
-    // Listen for new messages
-    socket.current.on("messageReceived", (newMessage) => {
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
-    });
+  // Handle typing events message read
+  useEffect(() => {
+    if (socket) {
+      socket.on("typing", () => {
+        setIsTyping(true);
+      });
 
-    return () => {
-      // Leave the chat room and disconnect
-      socket.current.emit("leaveRoom", chatId);
-      socket.current.disconnect();
-    };
-  }, [jwt, chatId]);
+      socket.on("stopTyping", () => {
+        setIsTyping(false);
+      });
+
+      socket.on("messagesRead", ({ messageIds }) => {
+        dispatch(chatActions.markMessagesAsRead(messageIds));
+      });
+
+      return () => {
+        socket.off("typing");
+        socket.off("stopTyping");
+        socket.off("messagesRead");
+      };
+    }
+  }, [dispatch, socket]);
+
+  // Mark messages as read when new messages are received
+  useEffect(() => {
+    const unreadMessageIds = messages
+      .filter((msg) => !msg.read && msg.sender._id === chatId)
+      .map((msg) => msg._id);
+
+    if (unreadMessageIds.length > 0) {
+      socket.emit("messagesRead", {
+        messageIds: unreadMessageIds,
+        chatId,
+        userId,
+      });
+    }
+  }, [messages, chatId, userId, socket]);
 
   const chatInputChangedHandler = (event) => {
     setChatInput(event.target.value);
+
+    if (event.target.value.trim() !== "") {
+      socket.emit("typing", { chatId, userId });
+      clearTimeout(typingTimeout.current);
+      typingTimeout.current = setTimeout(() => {
+        socket.emit("stopTyping", { chatId, userId });
+      }, 3000);
+    } else {
+      socket.emit("stopTyping", { chatId, userId });
+    }
   };
 
   const sendMessageHandler = () => {
@@ -59,17 +109,14 @@ const ChatBox = ({ chatId }) => {
       content: chatInput.trim(),
     };
 
-    // Emit the message to the socket server
-    socket.current.emit("sendMessage", message);
-
-    // Clear the input field
+    socket.emit("sendMessage", message);
     setChatInput("");
   };
 
   return (
     <div className={classes.chatBox}>
-      <div className={classes.chat}>
-        {messages.map((chat) => (
+      <div ref={chatBoxRef} className={classes.chat}>
+        {sortedMessages.map((chat) => (
           <div
             className={
               userId === chat.sender._id
@@ -89,9 +136,16 @@ const ChatBox = ({ chatId }) => {
               })}
             </span>
             <p className={classes["chat-message"]}>{chat.content}</p>
+            {!chat.read && chat.sender._id === userId && (
+              <IoCheckmarkCircleOutline className={classes.sent} />
+            )}
+            {chat.read && chat.sender._id === userId && (
+              <IoCheckmarkDoneCircleOutline className={classes.read} />
+            )}
           </div>
         ))}
       </div>
+      {isTyping && <TiMessageTyping className={classes.typing} />}
       <div className={classes.action}>
         <textarea value={chatInput} onChange={chatInputChangedHandler} />
         <IoSendOutline className={classes.icon} onClick={sendMessageHandler} />
