@@ -8,7 +8,7 @@
 .chat {
   display: flex;
   flex-direction: column;
-  height: 78%;
+  height: 70%;
   overflow-y: scroll;
 }
 
@@ -21,6 +21,22 @@
   align-self: flex-start;
   position: relative;
   min-width: 20rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.sent {
+  align-self: flex-end;
+  width: 3rem;
+  height: 3rem;
+  color: gray;
+}
+
+.read {
+  align-self: flex-end;
+  width: 3rem;
+  height: 3rem;
+  color: blue;
 }
 
 .sender {
@@ -67,4 +83,10 @@
   width: 6rem;
   height: 6rem;
   cursor: pointer;
+}
+
+.typing {
+  margin-bottom: 2rem;
+  width: 6rem;
+  height: 6rem;
 }

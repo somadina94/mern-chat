@@ -13,9 +13,11 @@ import {
 } from "redux-persist";
 
 import authSlice from "./authSlice";
+import chatSlice from "./chatSlice";
 
 const rootReducer = combineReducers({
   auth: authSlice.reducer,
+  chat: chatSlice.reducer,
 });
 
 const persistConfig = {
