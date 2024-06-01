@@ -14,7 +14,7 @@ export const SocketProvider = ({ children, token }) => {
   const userId = useSelector((state) => state.auth.user?._id);
 
   useEffect(() => {
-    const socketInstance = io("http://localhost:7000", {
+    const socketInstance = io("https://mernchatapi.jahbyte.com", {
       auth: { token: userId },
     });
 

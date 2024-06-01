@@ -52,6 +52,14 @@ const Sidebar = ({ setIsNewChat }) => {
     (a, b) =>
       new Date(b.lastMessage.createdAt) - new Date(a.lastMessage.createdAt)
   );
+
+  let map = new Map();
+
+  sortedChatList.forEach((el) => {
+    map.set(el.receiver, el);
+  });
+
+  const uniqueChatList = Array.from(map.values());
   return (
     <div className={classes.sidebar}>
       <div className={classes.menu}>
@@ -62,7 +70,7 @@ const Sidebar = ({ setIsNewChat }) => {
         />
       </div>
       <ul className={classes.chatList}>
-        {sortedChatList.map((chat) => (
+        {uniqueChatList.map((chat) => (
           <li key={chat.receiver.id} className={classes.chatItem}>
             <NavLink
               to={`/messages/${chat.receiver.id}`}

@@ -5,6 +5,7 @@ import { RiLockPasswordLine } from "react-icons/ri";
 import useInput from "../../hooks/useInput";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { useCookies } from "react-cookie";
 
 import classes from "./Form.module.css";
 import { createAccount } from "../../api/api";
@@ -19,6 +20,7 @@ const SignUp = () => {
   const [showAlert, setShowAlert] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const setCookie = useCookies(["jwt"])[1];
 
   const {
     enteredValue: nameInput,
@@ -91,12 +93,13 @@ const SignUp = () => {
     const res = await createAccount(data);
 
     if (res.status === "success") {
+      setCookie("jwt", res.token);
       dispatch(authActions.login({ user: res.data.user }));
       setAlertMsg(res.message);
       setAlertStatus(true);
       setShowAlert(true);
       setTimeout(() => {
-        navigate("/", { replace: true });
+        navigate("/messages", { replace: true });
       }, 2000);
     } else {
       setAlertMsg(res.message);

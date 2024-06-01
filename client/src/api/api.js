@@ -1,7 +1,11 @@
 import axios from "axios";
 
+// const axiosInstance = axios.create({
+//   baseURL: "http://127.0.0.1:7000/api/v1",
+// });
+
 const axiosInstance = axios.create({
-  baseURL: "http://127.0.0.1:7000/api/v1",
+  baseURL: "https://mernchatapi.jahbyte.com/api/v1/",
 });
 
 export const createAccount = async (data) => {
