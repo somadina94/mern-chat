@@ -61,7 +61,7 @@ const Login = () => {
       setAlertStatus(true);
       setShowAlert(true);
       setTimeout(() => {
-        navigate("/", { replace: true });
+        navigate("/messages", { replace: true });
       }, 2000);
     } else {
       setAlertMsg(res.message);
