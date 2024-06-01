@@ -9,6 +9,7 @@ import { useCookies } from "react-cookie";
 import { SocketProvider } from "./store/socketContext";
 import { useSocket } from "./store/socketContext";
 import { useSelector } from "react-redux";
+import TawkMessengerReact from "@tawk.to/tawk-messenger-react";
 
 import Layout from "./components/layout/Layout";
 import SignUp from "./components/auth/SignUp";
@@ -43,6 +44,10 @@ function App() {
       <SocketProvider token={jwt}>
         <RouterProvider router={router} />
       </SocketProvider>
+      <TawkMessengerReact
+        propertyId="643012464247f20fefea5d26"
+        widgetId="1gtdseqgd"
+      />
     </Fragment>
   );
 }
